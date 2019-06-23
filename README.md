@@ -1,3 +1,0 @@
-# knocat
-
-Knowledge Catalogs
