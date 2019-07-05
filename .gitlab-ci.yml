@@ -6,4 +6,3 @@ build_image:
     - dind
    script:
      - docker build -t richtest -f docker/Dockerfile .
-     - docker run richtest /script/to/run/tests
