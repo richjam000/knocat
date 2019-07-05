@@ -5,5 +5,5 @@ build_image:
    tags:
     - dind
    script:
-     - docker build -t my-docker-image .
+     - docker build -t my-docker-image2 .
      - docker run my-docker-image /script/to/run/tests
