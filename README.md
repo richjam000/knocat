@@ -1,2 +1,2 @@
 # knocat
-KNOwledge CATalogs..
+KNOwledge CATalogs
