@@ -5,5 +5,5 @@ build_image:
    tags:
     - dind
    script:
-     - docker build -t richtest docker
+     - docker build -t richtest -f docker/Dockerfile .
      - docker run richtest /script/to/run/tests
