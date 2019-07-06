@@ -10,7 +10,6 @@ build_image:
    tags:
     - dind
    script:
-     - echo docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
      - docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
    except:
      - master
@@ -27,7 +26,6 @@ deploy_review::
    script:
      - docker container stop scs_review || echo "Continue"
      - docker container rm scs_review || echo "Continue"
-     - echo docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
      - master
@@ -39,19 +37,10 @@ deploy_prod:
   tags:
     - dind
   script:
-    - echo docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
     - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
-    - echo docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
-    - docker stop knocat
-    - docker rm knocat
-    - >
-       echo docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
-       --volume knocat_html:/var/www/html 
-       --volume knocat_cgi-bin:/var/www/cgi-bin 
-       --volume knocat_logs:/var/log/httpd 
-       --volume knocat_conf:/etc/httpd 
-       $CI_PROJECT_NAME:$SCS_VERSION
+    - docker stop knocat || echo "Continue"
+    - docker rm knocat || echo "Continue"
     - >
        docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
        --volume knocat_html:/var/www/html 
@@ -59,10 +48,8 @@ deploy_prod:
        --volume knocat_logs:/var/log/httpd 
        --volume knocat_conf:/etc/httpd 
        $CI_PROJECT_NAME:$SCS_VERSION
-    - echo docker stop $CI_PROJECT_NAME:review_$SCS_VERSION
-    - docker stop $CI_PROJECT_NAME:review_$SCS_VERSION
-    - echo docker rm $CI_PROJECT_NAME:review_$SCS_VERSION
-    - docker rm $CI_PROJECT_NAME:review_$SCS_VERSION
+    - docker container stop scs_review || echo "Continue"
+    - docker container rm scs_review || echo "Continue"
   environment:
     name: production
     url: https://www.knocat.com
