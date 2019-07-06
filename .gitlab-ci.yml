@@ -11,11 +11,13 @@ build_image:
     - dind
    script:
      - docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
-   only:
-     - branches
+   except:
+     - master
      
 deploy_review::
    stage: deploy
+   variables:
+    GIT_STRATEGY: none
    environment:
     name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
     url: https://review.scsuk.net
@@ -25,11 +27,13 @@ deploy_review::
      - docker container stop scs_review
      - docker container rm scs_review
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
-   only:
-     - branches
+   except:
+     - master
 
 deploy_prod:
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
   tags:
     - dind
   script:
