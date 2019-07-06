@@ -14,7 +14,7 @@ build_image:
    except:
      - master
      
-deploy_review::
+deploy_review:
    stage: deploy
    variables:
     GIT_STRATEGY: none
