@@ -35,15 +35,15 @@ deploy_prod:
    variables:
     GIT_STRATEGY: none
    tags:
-     - dind
+    - dind
    script:
-     - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
-     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
-     - docker stop knocat
-     - docker rm knocat
-     - docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always --volume knocat_html:/var/www/html --volume knocat_cgi-bin:/var/www/cgi-bin --volume knocat_logs:/var/log/httpd --volume knocat_conf:/etc/httpd $CI_PROJECT_NAME:$SCS_VERSION
-     - docker stop $CI_PROJECT_NAME:review_$SCS_VERSION
-     - docker rm $CI_PROJECT_NAME:review_$SCS_VERSION
+    - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
+    - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
+    - docker stop knocat
+    - docker rm knocat
+    - docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always --volume knocat_html:/var/www/html --volume knocat_cgi-bin:/var/www/cgi-bin --volume knocat_logs:/var/log/httpd --volume knocat_conf:/etc/httpd $CI_PROJECT_NAME:$SCS_VERSION
+    - docker stop $CI_PROJECT_NAME:review_$SCS_VERSION
+    - docker rm $CI_PROJECT_NAME:review_$SCS_VERSION
    environment:
     name: production
     url: https://www.knocat.com
