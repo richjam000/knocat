@@ -1,8 +1,18 @@
-before_script:
-   - docker info
+stages:
+  - build
+  - stage
+
 
 build_image:
+   stage: build
    tags:
     - dind
    script:
      - docker build -t richtest:v1 -f docker/Dockerfile .
+     
+stage_container:
+   stage: stage
+   tags:
+    - dind
+   script:
+     - docker volume create knocat_html_stage 
