@@ -7,13 +7,13 @@ build_image:
    tags:
     - dind
    script:
-     - docker build -t richtest:v1 -f docker/Dockerfile .
+     - docker build -t $CI_PROJECT_NAME:$CI_COMMIT_REF_NAME -f docker/Dockerfile .
      
 stage_container:
    stage: stage
    tags:
     - dind
    script:
-     - docker volume create knocat_html_stage 
-     - docker run -d --name=knocat --network=jamnet  --hostname=knocat --restart=always --volume knocat_html_stage:/var/www/html richtest:v1
+     - docker volume create knocat_html_$CI_COMMIT_REF_NAME 
+     - docker run -d --name=knocat_$CI_COMMIT_REF_NAME --network=jamnet  --hostname=knocat_$CI_COMMIT_REF_NAME --restart=always --volume knocat_html_$CI_COMMIT_REF_NAME:/var/www/html $CI_PROJECT_NAME:$CI_COMMIT_REF_NAME
 
