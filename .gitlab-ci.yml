@@ -1,3 +1,6 @@
+variables:
+  SCS_VERSION: "1.1"
+
 stages:
   - build
   - deploy
@@ -7,24 +10,31 @@ build_image:
    tags:
     - dind
    script:
-     - docker build -t $CI_PROJECT_NAME:$CI_COMMIT_REF_NAME -f docker/Dockerfile .
+     - docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
+   only:
+     - branches
      
 deploy_review::
    stage: deploy
    environment:
-    name: review/$CI_PROJECT_NAME.$CI_COMMIT_REF_NAME
+    name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
     url: https://review.scsuk.net
    tags:
     - dind
    script:
      - docker container stop scs_review
      - docker container rm scs_review
-     - docker run -d --name=scs_review --network=jamnet  --hostname=knocat_$CI_COMMIT_REF_NAME --restart=always --volume knocat_html_$CI_COMMIT_REF_NAME:/var/www/html $CI_PROJECT_NAME:$CI_COMMIT_REF_NAME
+     - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
+   only:
+     - branches
 
 deploy_prod:
   stage: deploy
+  tags:
+    - dind
   script:
-    - docker tag $CI_PROJECT_NAME:$CI_COMMIT_REF_NAME $CI_PROJECT_NAME:latest
+    - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
+    - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
   environment:
     name: production
     url: https://www.knocat.com
