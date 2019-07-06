@@ -43,8 +43,8 @@ deploy_prod:
     - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
     - echo docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
-    - docker stop scs_knocat
-    - docker rm scs_knocat
+    - docker stop knocat
+    - docker rm knocat
     - echo docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always --volume knocat_html:/var/www/html --volume knocat_cgi-bin:/var/www/cgi-bin --volume knocat_logs:/var/log/httpd --volume knocat_conf:/etc/httpd $CI_PROJECT_NAME:$SCS_VERSION
   environment:
     name: production
