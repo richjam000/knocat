@@ -2,7 +2,6 @@ stages:
   - build
   - stage
 
-
 build_image:
    stage: build
    tags:
@@ -16,3 +15,5 @@ stage_container:
     - dind
    script:
      - docker volume create knocat_html_stage 
+     - docker run -d --name=knocat --network=jamnet  --hostname=knocat --restart=always --volume knocat_html_stage:/var/www/html richtest:v1
+
