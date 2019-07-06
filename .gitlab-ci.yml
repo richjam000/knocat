@@ -45,7 +45,8 @@ deploy_prod:
      - docker stop knocat
      - docker rm knocat
    allow_failure: true
-   script: ->
+   script:
+     - >
        docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
        --volume knocat_html:/var/www/html 
        --volume knocat_cgi-bin:/var/www/cgi-bin 
