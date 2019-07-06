@@ -17,7 +17,8 @@ deploy_review::
    tags:
     - dind
    script:
-     - docker volume create knocat_html_$CI_COMMIT_REF_NAME 
+     - docker container stop scs_review
+     - docker container rm scs_review
      - docker run -d --name=scs_review --network=jamnet  --hostname=knocat_$CI_COMMIT_REF_NAME --restart=always --volume knocat_html_$CI_COMMIT_REF_NAME:/var/www/html $CI_PROJECT_NAME:$CI_COMMIT_REF_NAME
 
 deploy_prod:
