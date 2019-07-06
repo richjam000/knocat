@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.1"
+  SCS_VERSION: "1.2"
 
 stages:
   - build
@@ -10,6 +10,7 @@ build_image:
    tags:
     - dind
    script:
+     - echo docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
      - docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
    except:
      - master
@@ -26,6 +27,7 @@ deploy_review::
    script:
      - docker container stop scs_review
      - docker container rm scs_review
+     - echo docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
      - master
@@ -37,8 +39,13 @@ deploy_prod:
   tags:
     - dind
   script:
+    - echo docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
     - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
+    - echo docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
+    - docker stop scs_knocat
+    - docker rm scs_knocat
+    - echo docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always --volume knocat_html:/var/www/html --volume knocat_cgi-bin:/var/www/cgi-bin --volume knocat_logs:/var/log/httpd --volume knocat_conf:/etc/httpd $CI_PROJECT_NAME:$SCS_VERSION
   environment:
     name: production
     url: https://www.knocat.com
