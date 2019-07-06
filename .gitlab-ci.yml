@@ -26,8 +26,9 @@ deploy_review::
     - dind
    script:
      - docker container stop scs_review
-        allow_failure: true
      - docker container rm scs_review
+   allow_failure: true
+   script:
      - echo docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
