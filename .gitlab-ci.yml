@@ -44,7 +44,7 @@ deploy_prod:
      - docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always --volume knocat_html:/var/www/html --volume knocat_cgi-bin:/var/www/cgi-bin --volume knocat_logs:/var/log/httpd --volume knocat_conf:/etc/httpd $CI_PROJECT_NAME:$SCS_VERSION
      - docker stop $CI_PROJECT_NAME:review_$SCS_VERSION
      - docker rm $CI_PROJECT_NAME:review_$SCS_VERSION
-  environment:
+   environment:
     name: production
     url: https://www.knocat.com
   when: manual
