@@ -16,6 +16,8 @@ build_image:
      
 deploy_review::
    stage: deploy
+   variables:
+    GIT_STRATEGY: none
    environment:
     name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
     url: https://review.scsuk.net
@@ -30,6 +32,8 @@ deploy_review::
 
 deploy_prod:
   stage: deploy
+  variables:
+    GIT_STRATEGY: none
   tags:
     - dind
   script:
