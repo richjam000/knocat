@@ -24,8 +24,8 @@ deploy_review::
    tags:
     - dind
    script:
-     - docker container stop scs_review || echo "Continue"
-     - docker container rm scs_review || echo "Continue"
+     - docker container stop scs_review 
+     - docker container rm scs_review 
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
      - master
