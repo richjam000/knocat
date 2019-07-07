@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.8"
+  SCS_VERSION: "1.9"
 
 stages:
   - build
@@ -17,6 +17,8 @@ build_image:
      
 deploy_review::
    stage: deploy
+   tags:
+    - dind
    variables:
     GIT_STRATEGY: none
    environment:
