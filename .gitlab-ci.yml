@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.12"
+  SCS_VERSION: "1.13"
 
 stages:
   - build
@@ -26,9 +26,6 @@ deploy_review:
    tags:
     - dind
    script:
-     - echo "Stop and remove the review container if running/exists"
-     - docker container stop scs_review || echo "Container not running"
-     - docker container rm scs_review || echo "Container does not exist"
      - echo "Start the review container"
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
@@ -59,7 +56,7 @@ deploy_prod:
     - echo "Change review tag to versioned production tag"
     - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
-    - echo "Stop and remove the currnet production container"
+    - echo "Stop and remove the current production container"
     - docker stop knocat || echo "Continue"
     - docker rm knocat || echo "Continue"
     - echo "Create a new production container based on the new image"
