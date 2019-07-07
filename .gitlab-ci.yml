@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.14"
+  SCS_VERSION: "1.15"
 
 stages:
   - build
@@ -65,10 +65,7 @@ deploy_prod:
     - echo "Create a new production container based on the new image"
     - >
        docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
-       --volume knocat_html:/var/www/html 
-       --volume knocat_cgi-bin:/var/www/cgi-bin 
        --volume knocat_logs:/var/log/httpd 
-       --volume knocat_conf:/etc/httpd 
        $CI_PROJECT_NAME:$SCS_VERSION
   environment:
     name: production
