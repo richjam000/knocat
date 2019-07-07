@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.7"
+  SCS_VERSION: "1.8"
 
 stages:
   - build
@@ -10,6 +10,7 @@ build_image:
    tags:
     - dind
    script:
+     - echo "Build the image $CI_PROJECT_NAME:review_$SCS_VERSION"
      - docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
    except:
      - master
@@ -21,14 +22,30 @@ deploy_review::
    environment:
     name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
     url: https://review.scsuk.net
+    on_stop: stop_review
    tags:
     - dind
    script:
+     - echo "Stop and remove the review container if running/exists"
      - docker container stop scs_review || echo "Continue"
      - docker container rm scs_review || echo "Continue"
+     - echo "Start the review container"
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
      - master
+
+stop_review:
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  script:
+    - echo "Remove review app"
+    - docker container stop scs_review
+    - docker container rm scs_review
+  when: manual
+  environment:
+    name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
+    action: stop
 
 deploy_prod:
   stage: deploy
@@ -37,10 +54,13 @@ deploy_prod:
   tags:
     - dind
   script:
+    - echo "Change review tag to versioned production tag"
     - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
+    - echo "Stop and remove the currnet production container"
     - docker stop knocat || echo "Continue"
     - docker rm knocat || echo "Continue"
+    - echo "Create a new production container based on the new image"
     - >
        docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
        --volume knocat_html:/var/www/html 
@@ -48,8 +68,6 @@ deploy_prod:
        --volume knocat_logs:/var/log/httpd 
        --volume knocat_conf:/etc/httpd 
        $CI_PROJECT_NAME:$SCS_VERSION
-    - docker container stop scs_review || echo "Continue"
-    - docker container rm scs_review || echo "Continue"
   environment:
     name: production
     url: https://www.knocat.com
