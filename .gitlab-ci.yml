@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.13"
+  SCS_VERSION: "1.14"
 
 stages:
   - build
