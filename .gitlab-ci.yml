@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.10"
+  SCS_VERSION: "1.11"
 
 stages:
   - build
@@ -27,8 +27,8 @@ deploy_review:
     - dind
    script:
      - echo "Stop and remove the review container if running/exists"
-     - docker container stop scs_review || echo "Continue"
-     - docker container rm scs_review || echo "Continue"
+     - docker container stop scs_review || echo "Container not running"
+     - docker container rm scs_review || echo "Container does not exist"
      - echo "Start the review container"
      - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
@@ -41,9 +41,9 @@ stop_review:
   variables:
     GIT_STRATEGY: none
   script:
-    - echo "Remove review app"
-    - docker container stop scs_review
-    - docker container rm scs_review
+    - echo "Remove review container"
+    - docker container stop scs_review || echo "Container not running"
+    - docker container rm scs_review || echo "Container does not exist"
   when: manual
   environment:
     name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
