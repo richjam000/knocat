@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.8"
+  SCS_VERSION: "1.10"
 
 stages:
   - build
@@ -15,7 +15,7 @@ build_image:
    except:
      - master
      
-deploy_review::
+deploy_review:
    stage: deploy
    variables:
     GIT_STRATEGY: none
@@ -35,6 +35,8 @@ deploy_review::
      - master
 
 stop_review:
+  tags:
+    - dind
   stage: deploy
   variables:
     GIT_STRATEGY: none
