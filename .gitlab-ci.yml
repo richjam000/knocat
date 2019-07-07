@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.14"
+  SCS_VERSION: "1.16"
 
 stages:
   - build
@@ -44,6 +44,7 @@ stop_review:
     - echo "Remove review container"
     - docker container stop scs_review || echo "Container not running"
     - docker container rm scs_review || echo "Container does not exist"
+    - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
   when: manual
   environment:
     name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
@@ -58,17 +59,13 @@ deploy_prod:
   script:
     - echo "Change review tag to versioned production tag"
     - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
-    - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
     - echo "Stop and remove the currnet production container"
     - docker stop knocat || echo "Continue"
     - docker rm knocat || echo "Continue"
     - echo "Create a new production container based on the new image"
     - >
        docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
-       --volume knocat_html:/var/www/html 
-       --volume knocat_cgi-bin:/var/www/cgi-bin 
        --volume knocat_logs:/var/log/httpd 
-       --volume knocat_conf:/etc/httpd 
        $CI_PROJECT_NAME:$SCS_VERSION
   environment:
     name: production
