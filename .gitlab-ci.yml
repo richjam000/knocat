@@ -10,6 +10,7 @@ variables:
   PRODUCTION_CONTAINER_NAME: production-${CI_PROJECT_NAME}									# production-knocat
 
   REVIEW_URL: http://www.${REVIEW_CONTAINER_NAME}.knocat.com/						# http://www.review-knocat-branch600-ca3ec109.knocat.com
+  REVIEW_URL: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/			# http://www.review-knocat-branch600-ca3ec109.knocat.com
 
 stages:
   - build
@@ -30,8 +31,8 @@ deploy_review:
    variables:
     GIT_STRATEGY: none
    environment:
-    name: review/$REVIEW_CONTAINER_NAME
-    url: $REVIEW_URL
+    name: review/review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+    url: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/
     on_stop: stop_review
    tags:
     - dind
@@ -59,8 +60,8 @@ stop_review:
     - docker rmi $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME
   when: manual
   environment:
-    name: review/$REVIEW_CONTAINER_NAME
-    url: $REVIEW_URL
+    name: review/review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+    url: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/
     action: stop
 
 deploy_prod:
