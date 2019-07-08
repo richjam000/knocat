@@ -1,6 +1,6 @@
 variables:
-  SCS_VERSION: "2.24"
-  REVIEW_CONTAINER_NAME: ${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}   # eg: knocat_branch12_rich
+  SCS_VERSION: "2.25"
+  REVIEW_CONTAINER_NAME: ${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}   # eg: knocat_branch12_rich
 
 stages:
   - build
@@ -21,8 +21,8 @@ deploy_review:
    variables:
     GIT_STRATEGY: none
    environment:
-    name: review/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}
-    url: http://www.${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}.knocat.com/
+    name: review/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}
+    url: http://www.${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}.knocat.com/
     on_stop: stop_review
    tags:
     - dind
@@ -50,8 +50,8 @@ stop_review:
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
   when: manual
   environment:
-    name: review/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}
-    url: http://www.${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}.knocat.com/
+    name: review/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}
+    url: http://www.${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}.knocat.com/
     action: stop
 
 deploy_prod:
