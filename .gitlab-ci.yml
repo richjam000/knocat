@@ -1,7 +1,6 @@
 variables:
   REVIEW_IMAGE_NAME: review-${CI_PROJECT_NAME}											# review-knocat
   REVIEW_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}									# branch600-ca3ec109
-  PRODUCTION_IMAGE_NAME: production-${CI_PROJECT_NAME} 										# production-knocat
 
   REVIEW_CONTAINER_NAME: review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}					# review-knocat-branch600-ca3ec109
 
@@ -67,13 +66,13 @@ deploy_prod:
   stage: deploy-prod
   variables:
     GIT_STRATEGY: none
-    PRODUCTION_CONTAINER_NAME: production-${CI_PROJECT_NAME}									# production-knocat
-    REVIEW_IMAGE_TAG_ATMERGE: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}				# branch600-ca3ec109
-    PRODUCTION_IMAGE_TAG: ${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}
+    PRODUCTION_IMAGE_NAME: ${CI_PROJECT_NAME} 										# production-knocat
+    PRODUCTION_IMAGE_TAG: ${CI_COMMIT_SHORT_SHA}
+    PRODUCTION_CONTAINER_NAME: ${CI_PROJECT_NAME}									# knocat
   tags:
     - dind
   script:
-    - echo "docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$REVIEW_IMAGE_TAG"
+    - echo "docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG"
     - docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG
     - echo "Stop and remove the current production container"
     - docker stop $PRODUCTION_CONTAINER_NAME || echo "Continue"
