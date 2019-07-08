@@ -1,20 +1,17 @@
 variables:
   REVIEW_IMAGE_NAME: review-${CI_PROJECT_NAME}											# review-knocat
   REVIEW_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}									# branch600-ca3ec109
-  REVIEW_IMAGE_TAG_ATMERGE: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}				# branch600-ca3ec109
   PRODUCTION_IMAGE_NAME: production-${CI_PROJECT_NAME} 										# production-knocat
-  PRODUCTION_IMAGE_TAG: ${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}
 
   REVIEW_CONTAINER_NAME: review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}					# review-knocat-branch600-ca3ec109
-  REVIEW_CONTAINER_NAME_ATMERGE: review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}				# review-knocat-branch600-ca3ec109
-  PRODUCTION_CONTAINER_NAME: production-${CI_PROJECT_NAME}									# production-knocat
 
   REVIEW_URL: http://www.${REVIEW_CONTAINER_NAME}.knocat.com/						# http://www.review-knocat-branch600-ca3ec109.knocat.com
   REVIEW_URL: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/			# http://www.review-knocat-branch600-ca3ec109.knocat.com
 
 stages:
   - build
-  - deploy
+  - deploy-review
+  - deploy-prod
 
 build_image:
    stage: build
@@ -27,7 +24,7 @@ build_image:
      - master
      
 deploy_review:
-   stage: deploy
+   stage: deploy-review
    variables:
     GIT_STRATEGY: none
    environment:
@@ -50,7 +47,7 @@ deploy_review:
 stop_review:
   tags:
     - dind
-  stage: deploy
+  stage: deploy-review
   variables:
     GIT_STRATEGY: none
   script:
@@ -67,9 +64,12 @@ stop_review:
      - master
 
 deploy_prod:
-  stage: deploy
+  stage: deploy-prod
   variables:
     GIT_STRATEGY: none
+    PRODUCTION_CONTAINER_NAME: production-${CI_PROJECT_NAME}									# production-knocat
+    REVIEW_IMAGE_TAG_ATMERGE: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}				# branch600-ca3ec109
+    PRODUCTION_IMAGE_TAG: ${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}
   tags:
     - dind
   script:
