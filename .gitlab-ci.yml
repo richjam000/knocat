@@ -57,12 +57,14 @@ stop_review:
     - echo "Remove review container"
     - docker container stop $REVIEW_CONTAINER_NAME || echo "Container not running"
     - docker container rm $REVIEW_CONTAINER_NAME || echo "Container does not exist"
-    - docker rmi $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME
+    - docker rmi $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG
   when: manual
   environment:
     name: review/review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
     url: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/
     action: stop
+  except:
+     - master
 
 deploy_prod:
   stage: deploy
@@ -71,16 +73,16 @@ deploy_prod:
   tags:
     - dind
   script:
-    - echo "Change review tag to versioned production tag"
-    - docker tag $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME $CI_PROJECT_NAME:$REVIEW_CONTAINER_NAME
-    - echo "Stop and remove the currnet production container"
+    - echo "docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG"
+    - docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG
+    - echo "Stop and remove the current production container"
     - docker stop $PRODUCTION_CONTAINER_NAME || echo "Continue"
     - docker rm $PRODUCTION_CONTAINER_NAME || echo "Continue"
-    - echo "Create a new production container based on the new image"
+    - echo "Create a new production container ($PRODUCTION_CONTAINER_NAME) based on the new image ($PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG)"
     - >
        docker run -d --name=$PRODUCTION_CONTAINER_NAME --network=jamnet --hostname=$PRODUCTION_CONTAINER_NAME --restart=always 
        --volume ${PRODUCTION_CONTAINER_NAME}-logs:/var/log/httpd 
-       $CI_PROJECT_NAME:$REVIEW_CONTAINER_NAME
+       $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG
   environment:
     name: production
     url: http://www.knocat.com
