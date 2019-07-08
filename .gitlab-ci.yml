@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "1.19"
+  SCS_VERSION: "2.0"
 
 stages:
   - build
@@ -21,16 +21,16 @@ deploy_review:
     GIT_STRATEGY: none
    environment:
     name: review/$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN
-    url: https://review.scsuk.net
+    url: https://www.$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN.knocat.com
     on_stop: stop_review
    tags:
     - dind
    script:
      - echo "Stop and remove the review container if running/exists"
-     - docker container stop scs_review || echo "Container not running"
-     - docker container rm scs_review || echo "Container does not exist"
+     - docker container stop $CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN || echo "Container not running"
+     - docker container rm $CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN || echo "Container does not exist"
      - echo "Start the review container"
-     - docker run -d --name=scs_review --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
+     - docker run -d --name=$CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
    except:
      - master
 
@@ -42,8 +42,8 @@ stop_review:
     GIT_STRATEGY: none
   script:
     - echo "Remove review container"
-    - docker container stop scs_review || echo "Container not running"
-    - docker container rm scs_review || echo "Container does not exist"
+    - docker container stop $CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN || echo "Container not running"
+    - docker container rm $CI_PROJECT_NAME.$SCS_VERSION.$GITLAB_USER_LOGIN || echo "Container does not exist"
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
   when: manual
   environment:
