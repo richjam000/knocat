@@ -48,6 +48,7 @@ stop_review:
     - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
   when: manual
   environment:
+    name: review/$CI_COMMIT_REF_NAME
     url: https://www.$CI_COMMIT_REF_SLUG.knocat.com/
     action: stop
 
