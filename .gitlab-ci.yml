@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "2.7"
+  SCS_VERSION: "2.8"
   REVIEW_CONTAINER_NAME: ${CI_PROJECT_NAME}_${CI_COMMIT_REF_SLUG}_${GITLAB_USER_LOGIN}   # eg: knocat_branch12_rich
 
 stages:
@@ -22,7 +22,8 @@ deploy_review:
     GIT_STRATEGY: none
    environment:
     name: review/$REVIEW_CONTAINER_NAME
-    url: https://www.${REVIEW_CONTAINER_NAME}.knocat.com
+    #url: http://www.${REVIEW_CONTAINER_NAME}.knocat.com
+    url: http://$CI_BUILD_REF_SLUG.$APPS_DOMAIN
     on_stop: stop_review
    tags:
     - dind
@@ -70,7 +71,7 @@ deploy_prod:
        $CI_PROJECT_NAME:$SCS_VERSION
   environment:
     name: production
-    url: https://www.knocat.com
+    url: http://www.knocat.com
   when: manual
   only:
   - master
