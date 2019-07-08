@@ -1,5 +1,16 @@
 variables:
-  REVIEW_CONTAINER_NAME: ${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}   # eg: knocat_branch12_rich
+  REVIEW_IMAGE_NAME: review-${CI_PROJECT_NAME}											# review-knocat
+  REVIEW_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}									# branch600-ca3ec109
+  REVIEW_IMAGE_TAG_ATMERGE: ${CI_MERGE_REQUEST_SOURCE_BRANCH_NAME}-${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}				# branch600-ca3ec109
+  PRODUCTION_IMAGE_NAME: production-${CI_PROJECT_NAME} 										# production-knocat
+  PRODUCTION_IMAGE_TAG: ${CI_MERGE_REQUEST_SOURCE_BRANCH_SHA}
+
+  REVIEW_CONTAINER_NAME: review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}					# review-knocat-branch600-ca3ec109
+  REVIEW_CONTAINER_NAME_ATMERGE: review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}				# review-knocat-branch600-ca3ec109
+  PRODUCTION_CONTAINER_NAME: production-${CI_PROJECT_NAME}									# production-knocat
+
+  REVIEW_URL: http://www.${REVIEW_CONTAINER_NAME}.knocat.com/						# http://www.review-knocat-branch600-ca3ec109.knocat.com
+  REVIEW_URL: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/			# http://www.review-knocat-branch600-ca3ec109.knocat.com
 
 stages:
   - build
@@ -10,8 +21,8 @@ build_image:
    tags:
     - dind
    script:
-     - echo "Build the image $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME"
-     - docker build -t $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME -f docker/Dockerfile .
+     - echo "Build the image $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG"
+     - docker build -t $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG -f docker/Dockerfile .
    except:
      - master
      
@@ -20,19 +31,19 @@ deploy_review:
    variables:
     GIT_STRATEGY: none
    environment:
-    name: review/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}
-    url: http://www.${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}.knocat.com/
+    name: review/review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+    url: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/
     on_stop: stop_review
    tags:
     - dind
    script:
      - echo "Review Container Name  $REVIEW_CONTAINER_NAME"
-     - echo "Review URL http://www.${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}.knocat.com/"
+     - echo "Review URL $REVIEW_URL"
      - echo "Stop and remove the review container if running/exists"
      - docker container stop $REVIEW_CONTAINER_NAME || echo "Container not running"
      - docker container rm $REVIEW_CONTAINER_NAME || echo "Container does not exist"
      - echo "Start the review container"
-     - docker run -d --name=$REVIEW_CONTAINER_NAME --network=jamnet $CI_PROJECT_NAME:review_$SCS_$REVIEW_CONTAINER_NAME
+     - docker run -d --name=$REVIEW_CONTAINER_NAME --network=jamnet $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG
    except:
      - master
 
@@ -46,12 +57,14 @@ stop_review:
     - echo "Remove review container"
     - docker container stop $REVIEW_CONTAINER_NAME || echo "Container not running"
     - docker container rm $REVIEW_CONTAINER_NAME || echo "Container does not exist"
-    - docker rmi $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME
+    - docker rmi $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG
   when: manual
   environment:
-    name: review/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}
-    url: http://www.${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}.knocat.com/
+    name: review/review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
+    url: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/
     action: stop
+  except:
+     - master
 
 deploy_prod:
   stage: deploy
@@ -60,16 +73,16 @@ deploy_prod:
   tags:
     - dind
   script:
-    - echo "Change review tag to versioned production tag"
-    - docker tag $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME $CI_PROJECT_NAME:$REVIEW_CONTAINER_NAME
-    - echo "Stop and remove the currnet production container"
-    - docker stop knocat || echo "Continue"
-    - docker rm knocat || echo "Continue"
-    - echo "Create a new production container based on the new image"
+    - echo "docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG"
+    - docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG
+    - echo "Stop and remove the current production container"
+    - docker stop $PRODUCTION_CONTAINER_NAME || echo "Continue"
+    - docker rm $PRODUCTION_CONTAINER_NAME || echo "Continue"
+    - echo "Create a new production container ($PRODUCTION_CONTAINER_NAME) based on the new image ($PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG)"
     - >
-       docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
-       --volume knocat_logs:/var/log/httpd 
-       $CI_PROJECT_NAME:$REVIEW_CONTAINER_NAME
+       docker run -d --name=$PRODUCTION_CONTAINER_NAME --network=jamnet --hostname=$PRODUCTION_CONTAINER_NAME --restart=always 
+       --volume ${PRODUCTION_CONTAINER_NAME}-logs:/var/log/httpd 
+       $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG
   environment:
     name: production
     url: http://www.knocat.com
