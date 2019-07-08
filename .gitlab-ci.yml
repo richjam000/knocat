@@ -73,7 +73,7 @@ deploy_prod:
   tags:
     - dind
   script:
-    - echo "docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG"
+    - echo "docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG_ATMERGE $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG"
     - docker tag $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG $PRODUCTION_IMAGE_NAME:$PRODUCTION_IMAGE_TAG
     - echo "Stop and remove the current production container"
     - docker stop $PRODUCTION_CONTAINER_NAME || echo "Continue"
@@ -89,3 +89,4 @@ deploy_prod:
   when: manual
   only:
   - master
+  - merge_requests
