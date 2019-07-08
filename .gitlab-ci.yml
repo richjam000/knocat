@@ -45,7 +45,7 @@ stop_review:
     - echo "Stop and remove review container $REVIEW_CONTAINER_NAME"
     - docker container stop $REVIEW_CONTAINER_NAME
     - docker container rm $REVIEW_CONTAINER_NAME
-    - ehco "Remove the review image  $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG"
+    - echo "Remove the review image  $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG"
     - docker rmi $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG
   when: manual
   environment:
