@@ -88,5 +88,4 @@ deploy_prod:
     url: http://www.knocat.com
   when: manual
   only:
-  - master
   - merge_requests
