@@ -29,8 +29,7 @@ deploy_review:
    tags:
     - dind
    script:
-     - echo "Review Container Name  $REVIEW_CONTAINER_NAME"
-     - echo "Start the review container"
+     - echo "Start the review container $REVIEW_CONTAINER_NAME"
      - echo docker run -d --name=$REVIEW_CONTAINER_NAME --network=jamnet $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG
      - docker run -d --name=$REVIEW_CONTAINER_NAME --network=jamnet $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG
    except:
@@ -43,7 +42,7 @@ stop_review:
   variables:
     GIT_STRATEGY: none
   script:
-    - echo "Stop and remove review container: $REVIEW_CONTAINER_NAME"
+    - echo "Stop and remove review container $REVIEW_CONTAINER_NAME"
     - docker container stop $REVIEW_CONTAINER_NAME
     - docker container rm $REVIEW_CONTAINER_NAME
     - ehco "Remove the review image  $REVIEW_IMAGE_NAME:$REVIEW_IMAGE_TAG"
