@@ -1,5 +1,4 @@
 variables:
-  SCS_VERSION: "2.25"
   REVIEW_CONTAINER_NAME: ${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}   # eg: knocat_branch12_rich
 
 stages:
@@ -11,8 +10,8 @@ build_image:
    tags:
     - dind
    script:
-     - echo "Build the image $CI_PROJECT_NAME:review_$SCS_VERSION"
-     - docker build -t $CI_PROJECT_NAME:review_$SCS_VERSION -f docker/Dockerfile .
+     - echo "Build the image $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME"
+     - docker build -t $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME -f docker/Dockerfile .
    except:
      - master
      
@@ -33,7 +32,7 @@ deploy_review:
      - docker container stop $REVIEW_CONTAINER_NAME || echo "Container not running"
      - docker container rm $REVIEW_CONTAINER_NAME || echo "Container does not exist"
      - echo "Start the review container"
-     - docker run -d --name=$REVIEW_CONTAINER_NAME --network=jamnet $CI_PROJECT_NAME:review_$SCS_VERSION
+     - docker run -d --name=$REVIEW_CONTAINER_NAME --network=jamnet $CI_PROJECT_NAME:review_$SCS_$REVIEW_CONTAINER_NAME
    except:
      - master
 
@@ -47,7 +46,7 @@ stop_review:
     - echo "Remove review container"
     - docker container stop $REVIEW_CONTAINER_NAME || echo "Container not running"
     - docker container rm $REVIEW_CONTAINER_NAME || echo "Container does not exist"
-    - docker rmi $CI_PROJECT_NAME:review_$SCS_VERSION
+    - docker rmi $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME
   when: manual
   environment:
     name: review/${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${GITLAB_USER_LOGIN}-${CI_COMMIT_SHORT_SHA}
@@ -62,7 +61,7 @@ deploy_prod:
     - dind
   script:
     - echo "Change review tag to versioned production tag"
-    - docker tag $CI_PROJECT_NAME:review_$SCS_VERSION $CI_PROJECT_NAME:$SCS_VERSION
+    - docker tag $CI_PROJECT_NAME:review_$REVIEW_CONTAINER_NAME $CI_PROJECT_NAME:$REVIEW_CONTAINER_NAME
     - echo "Stop and remove the currnet production container"
     - docker stop knocat || echo "Continue"
     - docker rm knocat || echo "Continue"
@@ -70,7 +69,7 @@ deploy_prod:
     - >
        docker run -d --name=knocat --network=jamnet --hostname=knocat --restart=always 
        --volume knocat_logs:/var/log/httpd 
-       $CI_PROJECT_NAME:$SCS_VERSION
+       $CI_PROJECT_NAME:$REVIEW_CONTAINER_NAME
   environment:
     name: production
     url: http://www.knocat.com
