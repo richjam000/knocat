@@ -1,5 +1,5 @@
 variables:
-  SCS_VERSION: "2.15"
+  SCS_VERSION: "2.16"
   REVIEW_CONTAINER_NAME: ${CI_PROJECT_NAME}_${CI_COMMIT_REF_SLUG}_${GITLAB_USER_LOGIN}   # eg: knocat_branch12_rich
 
 stages:
