@@ -28,7 +28,7 @@ deploy_review:
     - dind
    script:
      - echo "Review Container Name  $REVIEW_CONTAINER_NAME"
-     - echo "Review URL: http://www.${CI_PROJECT_NAME}_${CI_COMMIT_REF_SLUG}_${GITLAB_USER_LOGIN}.knocat.com/"
+     - echo "Review URL: http\://www.${CI_PROJECT_NAME}_${CI_COMMIT_REF_SLUG}_${GITLAB_USER_LOGIN}.knocat.com/"
      - echo "Stop and remove the review container if running/exists"
      - docker container stop $REVIEW_CONTAINER_NAME || echo "Container not running"
      - docker container rm $REVIEW_CONTAINER_NAME || echo "Container does not exist"
