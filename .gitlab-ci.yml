@@ -6,6 +6,7 @@ variables:
 stages:
   - build
   - deploy-review
+  - stop-review
   - deploy-prod
 
 build_image:
@@ -25,7 +26,6 @@ deploy_review:
    environment:
     name: review/review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}
     url: http://www.review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}.knocat.com/
-    on_stop: stop_review
    tags:
     - dind
    script:
@@ -38,7 +38,7 @@ deploy_review:
 stop_review:
   tags:
     - dind
-  stage: deploy-review
+  stage: stop-review
   variables:
     GIT_STRATEGY: none
   script:
