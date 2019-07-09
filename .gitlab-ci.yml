@@ -54,6 +54,7 @@ stop_review:
     action: stop
   except:
      - master
+     - merge_requests
 
 deploy_prod:
   stage: deploy-prod
