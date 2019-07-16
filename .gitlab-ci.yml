@@ -1,7 +1,20 @@
+# build: Create a unique "review" docker image							# eg: review-knocat:branch600-ca3ec109
+# deploy-review: Create a "review environment" container using the new image			# eg: review-knocat-branch600-ca3ec109
+# deploy-prod:	 Manual initiation only.
+#		 Adds a production tag to the "review" image					# eg: knocat:ca3ec109
+#                Stops and removes the running production image
+# 		 Starts a new production container using the new image				# eg: knocat
+# stop-review:   Manual initiation only ( from gitlab "Operations" GIU)
+#		 Remove the "review environment" container
+#                AND.. remove the review image
+#		 YES - this does mean that pipeline flow must be....
+#		 IF review fails -  "stop-review" ... no merge request - no "deploy-prod"
+#                IF review passes - Do not run "stop-review" intil AFER "deploy-prod"
+
 variables:
-  REVIEW_IMAGE_NAME: review-${CI_PROJECT_NAME}											# review-knocat
-  REVIEW_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}								# branch600-ca3ec109
-  REVIEW_CONTAINER_NAME: review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}					# review-knocat-branch600-ca3ec109
+  REVIEW_IMAGE_NAME: review-${CI_PROJECT_NAME}							# eg: review-knocat
+  REVIEW_IMAGE_TAG: ${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}				# eg: branch600-ca3ec109
+  REVIEW_CONTAINER_NAME: review-${CI_PROJECT_NAME}-${CI_COMMIT_REF_SLUG}-${CI_COMMIT_SHORT_SHA}	# eg: review-knocat-branch600-ca3ec109
 
 stages:
   - build
